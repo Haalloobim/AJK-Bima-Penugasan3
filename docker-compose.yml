@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+        - "8001:8001"
+    networks: 
+        - HaallooNet
+networks:
+  HaallooNet:
+    driver: bridge
