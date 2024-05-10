@@ -13,16 +13,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 RUN composer install
 
-RUN php artisan key:generate && php artisan storage:link
+RUN chmod -R 777 .
 
-RUN chmod -R 777 \
-    /var/www/html \
-    /var/www/html/storage \
-    /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data .
 
-RUN chown -R www-data:www-data \
-    /var/www/html \
-    /var/www/html/storage \
-    /var/www/html/bootstrap/cache
+RUN php artisan key:generate 
 
+RUN php artisan storage:link
 # https://github.com/codityco/003-how-to-dockerise-a-laravel-project/blob/main/Dockerfile

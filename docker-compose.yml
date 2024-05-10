@@ -1,12 +1,60 @@
 version: '3.7'
 services:
+  MySQL:
+    image: mysql:5.7
+    container_name: laravelMySQL
+    restart: always
+    ports:
+      - "3306:3306"
+    networks:
+      - HaallooNet
+    environment:
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_CONNECTION: 'mysql'
+      MYSQL_HOST: 'localhost'
+      MYSQL_DATABASE: 'pbkk'
+      MYSQL_PASSWORD: ''
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+  BE:
+    image: be-laravel:latest
+    container_name: laravelBackendApp
+    restart: always
+    ports:
+      - "9000:9000"
+    networks:
+      - HaallooNet
+    depends_on:
+      MySQL:
+        condition: service_healthy
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: MySQL
+      DB_PORT: 3306
+      DB_DATABASE: pbkk
+      DB_USERNAME: 'root'
+      DB_PASSWORD: ''
+    healthcheck:
+      test: ["CMD", "ping", "-c", "1", "MySQL"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
   nginx:
     image: nginx:alpine
     container_name: nginx
-    restart: unless-stopped
-    tty: true
+    restart: on-failure
     ports:
-        - "8001:8001"
+        - "8001:80"
+    volumes:
+        - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on: 
+        - BE
     networks: 
         - HaallooNet
 networks:
