@@ -21,4 +21,5 @@ RUN chown -R www-data:www-data .
 
 RUN php artisan key:generate && php artisan storage:link && yarn
 
+RUN yarn build
 # https://github.com/codityco/003-how-to-dockerise-a-laravel-project/blob/main/Dockerfile
