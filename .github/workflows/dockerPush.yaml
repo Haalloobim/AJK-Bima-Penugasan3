@@ -7,35 +7,39 @@ on:
   workflow_dispatch:
 
 jobs:
-  JobTest:
+  Job-Testing:
     runs-on: ubuntu-latest
     steps: 
-        - name: Testing Job
-          run: echo "Testing Job" 
+        - name: Bash Script Test
+          run: echo "Testing Job.." 
           shell: bash  
 
-#   Docker-Build:
-#     runs-on: ubuntu-latest
-#     steps:
-#         - name: Checkout
-#           uses: actions/checkout@v4
+  Docker-Build-Push:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
 
-#         - name: Set up QEMU
-#           uses: docker/setup-qemu-action@v3
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v3
        
-#         - name: Set up Docker Buildx
-#           uses: docker/setup-buildx-action@v3
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
         
-#         - name: Login to Docker Hub
-#           uses: docker/login-action@v2
-#           with:
-#             username: ${{ secrets.USER }}
-#             password: ${{ secrets.DOCKER_PASS }}
+        - name: Login to Docker Hub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_USER }}
+            password: ${{ secrets.DOCKER_PASS }}
 
-#         - name: Build and push
-#           uses: docker/build-push-action@v5
-#           with:
-#             context: ./src/
-#             push: true
-#             tags: ${{ secrets.USER }}/be-laravel:latest
+        - name: Build and push
+          uses: docker/build-push-action@v5
+          with:
+            context: ./src/
+            push: true
+            tags: ${{ secrets.DOCKER_USER }}/be-laravel:latest
         
+        - name: Runner Health Check
+          if: success()
+          run: echo "Docker Build and Push Completed.."
+          shell: bash
