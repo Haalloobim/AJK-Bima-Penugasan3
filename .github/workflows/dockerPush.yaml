@@ -22,12 +22,6 @@ jobs:
     steps:
         - name: Checkout
           uses: actions/checkout@v4
-        
-        - name: Cache dependencies
-          uses: actions/cache@v2
-          with:
-            path: /root/.cache
-            key: ${{ runner.os }}-dependencies-${{ hashFiles('**/requirements.txt') }}
 
         - name: Set up QEMU
           uses: docker/setup-qemu-action@v3
@@ -53,6 +47,8 @@ jobs:
             context: ./src/
             push: true
             tags: ${{ secrets.DOCKER_USER }}/be-laravel:latest
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
         
         - name: Runner Health Check
           if: success()
