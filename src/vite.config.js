@@ -16,10 +16,10 @@ export default defineConfig({
     },
   },
   server: {
-    host: '0.0.0.0',
+    host: '34.16.214.248', // default: '0.0.0.0'
     port: 5173,
     hmr: {
-      host: 'localhost'
+      host: '34.16.214.248' // default: 'localhost'
     },
   },
 });

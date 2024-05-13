@@ -83,12 +83,16 @@ jobs:
           source: "docker-compose.yml"
           target: ajk-cicd/
       
-      - name: Connecting SSH and Deploy Docker
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          port: ${{ secrets.SSH_PORT }}
-          key: ${{ secrets.SSH_PRIV_KEY }}
-          script: |
-            echo "hello world!"
+      # - name: Connecting SSH and Deploy Docker
+      #   uses: appleboy/ssh-action@v1.0.3
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: ${{ secrets.SSH_USER }}
+      #     port: ${{ secrets.SSH_PORT }}
+      #     key: ${{ secrets.SSH_PRIV_KEY }}
+      #     script: |
+      #       cd ajk-cicd
+      #       docker-compose down
+      #       docker rmi 
+      #       docker-compose up -d
+            
