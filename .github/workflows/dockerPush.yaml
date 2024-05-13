@@ -91,6 +91,7 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIV_KEY }}
           script: |
+            docker compose down
             docker rmi ${{ secrets.DOCKER_USER }}/be-laravel:latest
             docker pull ${{ secrets.DOCKER_USER }}/be-laravel:latest
       
