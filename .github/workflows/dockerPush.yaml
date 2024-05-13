@@ -63,16 +63,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      # - name: Copying NGINX Conf Files to SSH
-      #   uses: appleboy/scp-action@v0.1.7
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USER }}
-      #     password: ${{ secrets.SSH_PASS }}
-      #     port: ${{ secrets.SSH_PORT }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     source: "nginx/default.conf"
-      #     target: nginx/
+      - name: Copying NGINX Conf Files to SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "nginx/default.conf"
+          target: nginx/
 
       # - name: Copying Docker Compose Files to SSH
       #   uses: appleboy/scp-action@v0.1.7
@@ -91,7 +90,7 @@ jobs:
       #     host: ${{ secrets.SSH_HOST }}
       #     username: ${{ secrets.SSH_USER }}
       #     password: ${{ secrets.SSH_PASS }}
-      #     port: ${{ secrets.SS_PORT }}
+      #     port: ${{ secrets.SSH_PORT }}
       #     key: ${{ secrets.SSH_KEY }}
       #     script: |
       #       docker pull ${{ secrets.DOCKER_USER }}/be-laravel:latest
