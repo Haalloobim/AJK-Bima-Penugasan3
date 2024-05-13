@@ -8,6 +8,7 @@ on:
       - 'src/**'  
       - '.github/workflows/**'
       - docker-compose.yml
+      - nginx/default.conf
   workflow_dispatch:
 
 jobs:
