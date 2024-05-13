@@ -92,4 +92,4 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           key: ${{ secrets.SSH_PRIV_KEY }}
           script: |
-            echo hello world
+            echo "hello world"
