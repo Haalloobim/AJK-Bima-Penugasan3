@@ -56,7 +56,7 @@ return [
     |
     */
 
-    'url' => env('APP_URL', 'http://34.16.214.248'), // awal http://localhost
+    'url' => env('APP_URL', 'http://0.0.0.0'), // awal http://localhost
 
     'asset_url' => env('ASSET_URL'),
 

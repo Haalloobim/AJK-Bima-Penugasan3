@@ -11,12 +11,12 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ''
       MYSQL_CONNECTION: 'mysql'
-      MYSQL_HOST: '34.16.214.248'
+      MYSQL_HOST: 'localhost'
       MYSQL_DATABASE: 'pbkk'
       MYSQL_PASSWORD: ''
       MYSQL_ALLOW_EMPTY_PASSWORD: true
     healthcheck:
-      test: ["CMD", "mysqladmin" ,"ping", "-h", "34.16.214.248"]
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
       interval: 20s
       timeout: 10s
       retries: 3
