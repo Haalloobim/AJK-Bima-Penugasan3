@@ -83,16 +83,32 @@ jobs:
           source: "docker-compose.yml"
           target: ajk-cicd/
       
-      # - name: Connecting SSH and Deploy Docker
-      #   uses: appleboy/ssh-action@v1.0.3
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USER }}
-      #     port: ${{ secrets.SSH_PORT }}
-      #     key: ${{ secrets.SSH_PRIV_KEY }}
-      #     script: |
-      #       cd ajk-cicd
-      #       docker-compose down
-      #       docker rmi 
-      #       docker-compose up -d
+      - name: Remove and Pulling New Image
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          script: |
+            cd ajk-cicd
+            docker compose down
+            docker rmi ${{ secrets.DOCKER_USER }}/be-laravel:latest
+            docker compose pull ${{ secrets.DOCKER_USER }}/be-laravel:latest
+      
+      - name: Docker Compose Up
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          script: |
+            cd ajk-cicd
+            docker compose up -d
+
+      - name: Runner Health Check
+        if: success()
+        run: echo "Docker-Deploy Completed.."
+        shell: bash
             
