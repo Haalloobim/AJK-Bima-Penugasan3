@@ -73,16 +73,15 @@ jobs:
           source: "nginx/default.conf"
           target: ajk-cicd/
 
-      # - name: Copying Docker Compose Files to SSH
-      #   uses: appleboy/scp-action@v0.1.7
-      #   with:
-      #     host: ${{ secrets.SSH_HOST }}
-      #     username: ${{ secrets.SSH_USER }}
-      #     password: ${{ secrets.SSH_PASS }}
-      #     port: ${{ secrets.SSH_PORT }}
-      #     key: ${{ secrets.SSH_PRIV_KEY }}
-      #     source: "docker-compose.yml"
-      #     target: ./
+      - name: Copying Docker Compose Files to SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          source: "docker-compose.yml"
+          target: ajk-cicd/
       
       - name: Connecting SSH and Deploy Docker
         uses: appleboy/ssh-action@v1.0.3
