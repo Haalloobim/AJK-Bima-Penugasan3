@@ -1,6 +1,6 @@
 FROM php:8.2-fpm-alpine
 
-RUN apk update && apk add  libpng-dev zip unzip curl libxml2-dev git
+RUN apk update && apk add libpng-dev zip unzip curl libxml2-dev git nano
 
 RUN docker-php-ext-install pdo pdo_mysql \
     && apk --no-cache add nodejs npm
