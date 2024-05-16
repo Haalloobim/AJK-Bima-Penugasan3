@@ -109,6 +109,6 @@ jobs:
 
       - name: Runner Health Check
         if: success()
-        run: echo "Docker-Deploy Completed..."
+        run: echo "Docker-Deploy Completed.."
         shell: bash
             
