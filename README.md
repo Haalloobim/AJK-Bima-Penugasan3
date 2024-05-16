@@ -17,5 +17,80 @@ Pada pengerjaan penugasan kali ini, terdapat beberapa langkah yang harus saya la
 - Melakukan deploy pada cloud service secara manual dan mencoba apakah benar dapat bisa diakses pada ip public.  Setelah berhasil, saya melakukan langkah berikutnya.
 - Dan yang terakhir melakukan deploy menggunakan github action. 
 
+Pada saat melakukan compose up untuk proses deploy, saya menggunakan __4 Services__ yang berbeda dan dihubungkan menggunakan __1 Network__ kemudian membuat satu shared __1 Shared Volumes__.  Berikut merupakan services yang saya gunakan di [docker-compose.yml](./docker-compose.yml):
+
+- Service MySQL -> menggunakan base image mysql:5.7
+- Service Nginx -> menggunakan base image nginx:alpine
+- Service Laravel-App -> menggunakan base image dari [Dockerfile](./src/Dockerfile) yang sudah dibuat sebelumnya _*akan dijelaskan lebih lanjut_
+- Service Migration -> menggunakan base image dari [Dockerfile](./src/Dockerfile). Container ini bertujuan untuk melakukan otomasi pada proses migration. 
+
+Berikut merupakan config dari services MySQL yang saya gunakan. 
+```yaml
+version: '3.7'
+services:
+  MySQL:
+    image: mysql:5.7
+    container_name: laravelMySQL
+    restart: on-failure
+    ports:
+      - "3306:3306"
+    networks:
+      - HaallooNet
+    environment:
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_CONNECTION: 'mysql'
+      MYSQL_HOST: 'localhost'
+      MYSQL_DATABASE: 'pbkk'
+      MYSQL_PASSWORD: ''
+      MYSQL_ALLOW_EMPTY_PASSWORD: true
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 3s
+```
+Pada service ini terdapat beberapa atribut, antara lain adalah sebagai berikut:
+
+- `image`: berfungsi untuk memanggil image yang akan digunakan. Disini saya menggunakan image `mysql:5.7`
+- `container_name`: berfungsi untuk memberi nama container/service yang digunakan. 
+- `restart`: berfungsi sebagai pemberi signal untuk melakukan reset container. Disini saya menggunakan on_failure yang artinya hanya akan melakukan restarting container ketika terjadi sebuah kegagalan. 
+- `ports`: berfungsi untuk menentukan pada port mana service/container akan berjalan. Disini saya menggunakan 3306 *_Default MySQL port_
+- `networks`: berfungsi untuk menentukan network apa yang digunakan untuk menjembatani semua services yang ada pada docker-compose.yml. Disini saya menggunakan `HaallooNet`, networks yang saya buat. 
+- `environment`: berfungsi sebagai penampung _environemnt variable_ yang akan digunakan dalam sebuah container. Disini saya menggunakan data data tersebut sebagai hal yang diperlukan ketika menggunakan MySQL image. 
+- `Health Check`: berfungsi untuk menghasilkan kondisi baru apakah container yang bersangkutan dalam keadaan yang diharapkan atau tidak dan juga bisa mengirimkan kondisi tersebut ke container/service lain untuk melakukan pengkondisian. Untuk health check disini saya melakukan proses `ping` ke mysql admin yang bisa menandakan bahwa container sekaligus server mysql nya sudah berjalan dengan baik. 
+
+Kemudian Berikut merupakan config dari services BE yang saya gunakan.
+
+```yml
+version: '3.7'
+services:
+    BE:
+        image: haalloobim/be-laravel:latest
+        container_name: laravelBackendApp
+        restart: on-failure
+        ports:
+            - "9000:9000"
+        networks:
+            - HaallooNet
+        depends_on:
+            MySQL:
+                condition: service_healthy
+        environment:
+            DB_CONNECTION: mysql
+            DB_HOST: MySQL
+            DB_PORT: 3306
+            DB_DATABASE: pbkk
+            DB_USERNAME: 'root'
+            DB_PASSWORD: ''
+        healthcheck:
+            test: ["CMD", "ping", "-c", "1", "MySQL"]
+            interval: 20s
+            timeout: 10s
+            retries: 5
+            start_period: 3s
+        volumes:
+            - connected-volume:/var/www/html
+```
 
 
