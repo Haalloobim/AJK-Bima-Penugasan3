@@ -92,5 +92,103 @@ services:
         volumes:
             - connected-volume:/var/www/html
 ```
+Pada service ini terdapat beberapa atribut, antara lain adalah sebagai berikut:
+
+- `image`: berfungsi untuk memanggil image yang akan digunakan. Disini saya menggunakan image `haalloobim/be-laravel:latest`
+- `container_name`: berfungsi untuk memberi nama container/service yang digunakan. 
+- `restart`: berfungsi sebagai pemberi signal untuk melakukan reset container. Disini saya menggunakan `on_failure` yang artinya hanya akan melakukan restarting container ketika terjadi sebuah kegagalan. 
+- `ports`: berfungsi untuk menentukan pada port mana service/container akan berjalan. Disini saya menggunakan 9000 
+- `networks`: berfungsi untuk menentukan network apa yang digunakan untuk menjembatani semua services yang ada pada docker-compose.yml. Disini saya menggunakan `HaallooNet`, networks yang saya buat. 
+- `depends_on`: berfungsi untuk menunggu service yang di depend kan berhasil melakukan apa yang dia kerjakan. Pada kasus ini, service ini akan menunggu hingga status dari service yang dituju menjadi healthy. 
+- `environment`: berfungsi sebagai penampung _environemnt variable_ yang akan digunakan dalam sebuah container. Disini saya menggunakan data data tersebut sebagai hal yang diperlukan ketika menggunakan image tersebut. 
+- `Health Check`: berfungsi untuk menghasilkan kondisi baru apakah container yang bersangkutan dalam keadaan yang diharapkan atau tidak dan juga bisa mengirimkan kondisi tersebut ke container/service lain untuk melakukan pengkondisian. Untuk health check disini saya melakukan proses `ping` ke container MySQL yang bisa menandakan bahwa container MySQL nya sudah berjalan dengan baik. 
+- `volumes`: berfungsi untuk menampung volumes yang dibutuhkan oleh container.
+
+Kemudian Berikut merupakan config dari services BE-Migration yang saya gunakan.
+
+```yml
+version: '3.7'
+services:
+    BE-Migration:
+        image: haalloobim/be-laravel:latest
+        container_name: laravelBackendMigration
+        restart: on-failure
+        networks:
+            - HaallooNet
+        depends_on:
+            MySQL:
+                condition: service_healthy
+        command: php artisan migrate --seed
+```
+Pada service ini terdapat beberapa atribut, antara lain adalah sebagai berikut:
+
+- `image`: berfungsi untuk memanggil image yang akan digunakan. Disini saya menggunakan image `haalloobim/be-laravel:latest`
+- `container_name`: berfungsi untuk memberi nama container/service yang digunakan. 
+- `restart`: berfungsi sebagai pemberi signal untuk melakukan reset container. Disini saya menggunakan `on_failure` yang artinya hanya akan melakukan restarting container ketika terjadi sebuah kegagalan. 
+- `networks`: berfungsi untuk menentukan network apa yang digunakan untuk menjembatani semua services yang ada pada docker-compose.yml. Disini saya menggunakan `HaallooNet`, networks yang saya buat. 
+- `depends_on`: berfungsi untuk menunggu service yang di depend kan berhasil melakukan apa yang dia kerjakan. Pada kasus ini, service ini akan menunggu hingga status dari service yang dituju menjadi healthy. 
+
+Kemudian Berikut merupakan config dari services nginx yang saya gunakan.
+
+```yml
+version: '3.7'
+services:
+    nginx:
+        image: nginx:alpine
+        container_name: nginx
+        restart: on-failure
+        ports:
+            - "80:80"
+        depends_on: 
+            - BE
+        networks: 
+            - HaallooNet
+        volumes:
+            - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+            - connected-volume:/var/www/html
+```
+Pada service ini terdapat beberapa atribut, antara lain adalah sebagai berikut:
+
+- `image`: berfungsi untuk memanggil image yang akan digunakan. Disini saya menggunakan image `nginx:alpine`
+- `container_name`: berfungsi untuk memberi nama container/service yang digunakan. 
+- `restart`: berfungsi sebagai pemberi signal untuk melakukan reset container. Disini saya menggunakan `on_failure` yang artinya hanya akan melakukan restarting container ketika terjadi sebuah kegagalan. 
+- `ports`: berfungsi untuk menentukan pada port mana service/container akan berjalan. Disini saya menggunakan `80`
+- `networks`: berfungsi untuk menentukan network apa yang digunakan untuk menjembatani semua services yang ada pada docker-compose.yml. Disini saya menggunakan `HaallooNet`, networks yang saya buat. 
+- `depends_on`: berfungsi untuk menunggu service yang di depend kan berhasil melakukan apa yang dia kerjakan. Pada kasus ini, service ini akan menunggu hingga status dari service yang dituju menjadi healthy. 
+- `volumes`: berfungsi untuk menampung volumes yang dibutuhkan oleh container.
+
+Berikut juga akan saya lampirkan file Dockerfile yang saya buat untuk membuat image. 
+
+```Dockerfile
+FROM php:8.2-fpm-alpine
+
+RUN apk update && apk add libpng-dev zip unzip curl libxml2-dev git nano
+
+RUN docker-php-ext-install pdo pdo_mysql \
+    && apk --no-cache add nodejs npm
+
+RUN npm install -g yarn
+
+WORKDIR /var/www/html
+
+COPY . /var/www/html
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN composer install
+
+RUN chmod -R 777 .
+
+RUN chown -R www-data:www-data .
+
+RUN php artisan key:generate && php artisan storage:link && yarn
+
+RUN yarn build
+```
+
+Disini saya menggunakan referensi sama seperti waktu ketika Praktikum Modul 3 Sistem Operasi dan menambahkan sedikit tambahan yaitu pada bagian installing yarn dan proses build dari yarn tersebut. 
+
+Untuk Github    
+
 
 
