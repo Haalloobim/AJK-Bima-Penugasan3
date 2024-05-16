@@ -56,7 +56,7 @@ services:
     depends_on:
       MySQL:
         condition: service_healthy
-    command: php artisan migrate:fresh --seed
+    command: php artisan migrate --seed
   nginx:
     image: nginx:alpine
     container_name: nginx
