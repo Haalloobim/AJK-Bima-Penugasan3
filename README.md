@@ -299,3 +299,36 @@ Pada github action ini juga, saya hanya akan menjalankan action ketika file file
 - nginx/default.conf
 
 dan juga melakukan `actions/checkout@v4` untuk mengetahui kondisi atau directory yang ada di github ini. 
+
+## Proof That My Work Is Already Functioning
+
+- Link of my VM Instances -> [http://34.16.214.248/seri](http://34.16.214.248/seri)
+
+![dashboard](./media/image.png)
+
+- Proof of worked Workflows
+
+![alt text](./media/wokrflow.png)
+
+- Proof of using cache on building process 
+
+![alt text](./media/cache.png)
+
+- Proof of running docker container in Cloud Instance
+
+![alt text](./media/docker.png)
+
+## Kesimpulan dan Kesulitan Ketika Mengerjakan
+- Github action memudahkan dalam melakukan otomatisasi dalam proses building, mekanik caching yang disediakan juga sangat membantu dalam proses deployment. 
+- Kesulitan yang saya hadapi adalah ketika apply pada azure yang ditolak berkali kali _*discam dptsi_, yang akhirnya saya menggunakan GCP sebagai cloud service untuk melakukan proses deploy
+- Kesulitan kedua mungkin setup ssh pada GCP yang sedikit lebih rumit
+
+## Credits 
+
+- [AJK](https://github.com/arsitektur-jaringan-komputer)
+- [Laravel App](https://github.com/mvinorian/tamiyochi-laravel) 
+- [Pelatihan Deployment](https://github.com/arsitektur-jaringan-komputer/modul-deployment)
+- [Set Up Laravel with Compose](https://www.digitalocean.com/community/tutorials/how-to-set-up-laravel-nginx-and-mysql-with-docker-compose-on-ubuntu-20-04)
+- [Laravel-Nginx-MySQL Public Template](https://github.com/ishaqadhel/docker-laravel-mysql-nginx-starter)
+- [GCP Docs](https://cloud.google.com/docs)
+- [Docker Docs](https://docs.docker.com/)
