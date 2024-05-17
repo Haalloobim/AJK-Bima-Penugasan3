@@ -188,7 +188,114 @@ RUN yarn build
 
 Disini saya menggunakan referensi sama seperti waktu ketika Praktikum Modul 3 Sistem Operasi dan menambahkan sedikit tambahan yaitu pada bagian installing yarn dan proses build dari yarn tersebut. 
 
-Untuk Github    
+Untuk Github action yang saya gunakan kurang lebih berfungsi sebagai untuk melakukan hal hal berikut:
 
+Login Docker -> Melakukan Build image dari Gtihub -> Melakukan push ke github repository -> mengcopy file file penting kedalam VM instance menggunakan appleboy action -> melakukan connect ssh menggunakan ssh appleboy action -> Melalukan pull image dari docker hub -> Melakukan docker compose up
 
+Berikut adalah source code dari github action yang saya gunakan: 
 
+```yml
+name: File Change Handling on Docker Env
+
+on: 
+  push:
+    branches: 
+      - main
+    paths:
+      - 'src/**'  
+      - '.github/workflows/**'
+      - docker-compose.yml
+      - nginx/default.conf
+  workflow_dispatch:
+
+jobs:
+  Job-Testing:
+    runs-on: ubuntu-latest
+    steps: 
+        - name: Bash Script Test
+          run: echo "Testing Job.." 
+          shell: bash  
+
+  Docker-Build-Push:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v3
+       
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v3
+        
+        - name: Create .env file
+          run: |
+           touch ./src/.env
+           echo "${{secrets.ENV_FILE}}" > ./src/.env
+          shell: bash
+
+        - name: Login to Docker Hub
+          uses: docker/login-action@v2
+          with:
+            username: ${{ secrets.DOCKER_USER }}
+            password: ${{ secrets.DOCKER_PASS }}
+
+        - name: Build and push
+          uses: docker/build-push-action@v5
+          with:
+            context: ./src/
+            push: true
+            tags: ${{ secrets.DOCKER_USER }}/be-laravel:latest
+            cache-from: type=gha
+            cache-to: type=gha,mode=max
+        
+        - name: Runner Health Check
+          if: success()
+          run: echo "Docker Build and Push Completed.."
+          shell: bash
+
+  Docker-Deploy:
+    runs-on: ubuntu-latest
+    needs: Docker-Build-Push
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Copying NGINX Conf Files to SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          source: "nginx/default.conf,docker-compose.yml"
+          target: ajk-cicd/
+      
+      - name: Remove and Pulling New Image and Compose Up
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          port: ${{ secrets.SSH_PORT }}
+          key: ${{ secrets.SSH_PRIV_KEY }}
+          script: |
+            docker compose down
+            docker rmi ${{ secrets.DOCKER_USER }}/be-laravel:latest
+            docker pull ${{ secrets.DOCKER_USER }}/be-laravel:latest
+            cd ajk-cicd
+            docker compose up -d
+
+      - name: Runner Health Check
+        if: success()
+        run: echo "Docker-Deploy Completed..."
+        shell: bash
+            
+```
+Pada github action ini juga, saya hanya akan menjalankan action ketika file file berikut mengalami perubahan: 
+
+- src/**  
+- .github/workflows/**
+- docker-compose.yml
+- nginx/default.conf
+
+dan juga melakukan `actions/checkout@v4` untuk mengetahui kondisi atau directory yang ada di github ini. 
